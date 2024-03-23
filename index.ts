@@ -54,13 +54,3 @@ app.listen(port, () => {
   console.log(`NBAAPI app listening on port ${port}`);
 });
 
-const fetchData = async () => {
-  try {
-    const response: AxiosResponse = await axios.get(link);
-    const responseData = response.data;
-    console.log(responseData[0].bookmakers[0].markets);
-    return responseData[0].bookmakers[0].markets;
-  } catch (err) {
-    return err;
-  }
-};

@@ -32,15 +32,15 @@ app.get("/list", (req, res, next) => {
     .catch((err) => next(err));
 });
 app.get("/scoresbyid/:id", (req, res, next) => {
+  const specscoreslink = `https://api.the-odds-api.com/v4/sports/basketball_nba/scores/?daysFrom=1&apiKey=${apiKey}`
   console.log("scoresbyid" + req.params.id);
   res.send("scoresbyid" + req.params.id);
 });
 
 app.get("/oddsbyid/:id", (req, res, next) => {
-  const date = new Date().toISOString();
-  const specOddsLink = `https://api.the-odds-api.com/v4/sports/basketball_nba/odds?apiKey=${apiKey}&regions=us&markets=h2h&dateFormat=unix&oddsFormat=american&eventIds=${req.params.id}&bookmakers=draftkings&commenceTimeFrom=${date}`;
-  console.log(specOddsLink)
-  console.log("test");
+  var date = new Date().toISOString();
+  var newdate = date.slice(0, date.length - 5) + "Z"
+  const specOddsLink = `https://api.the-odds-api.com/v4/sports/basketball_nba/odds?apiKey=${apiKey}&regions=us&markets=h2h&dateFormat=unix&oddsFormat=american&eventIds=${req.params.id}&bookmakers=draftkings&commenceTimeFrom=${newdate}`;
   axios
     .get(specOddsLink)
     .then((response) => {
@@ -48,9 +48,6 @@ app.get("/oddsbyid/:id", (req, res, next) => {
       res.send(json);
     })
     .catch((err) => next(err));
-  console.log("got odds by id");
-  console.log(date);
-  console.log(req.params.id);
 });
 
 app.listen(port, () => {

@@ -3,7 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "ts-node": "^10.9.2"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -16,6 +17,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.1",
     "flatted": "^3.3.1",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.0"
   }
 }

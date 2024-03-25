@@ -3,7 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "start-server": "bun index.ts"
+    "start-server": "bun index.ts",
+    "vercel-build": "bun build ./index.ts --outfile=bundle.js"
   },
   "devDependencies": {
     "@types/bun": "latest",

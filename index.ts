@@ -31,13 +31,13 @@ app.get("/list", (req, res, next) => {
     })
     .catch((err) => next(err));
 });
-app.get("/scoresbyid/:id", (req, res, next) => {
+app.get("/game-result/:id", (req, res, next) => {
   const specscoreslink = `https://api.the-odds-api.com/v4/sports/basketball_nba/scores/?daysFrom=1&apiKey=${apiKey}&eventIds=${req.params.id}`
   console.log("scoresbyid" + req.params.id);
   res.send("scoresbyid" + req.params.id);
 });
 
-app.get("/oddsbyid/:id", (req, res, next) => {
+app.get("'/game/:id", (req, res, next) => {
   const date = returnFormattedDate()
   const specOddsLink = `https://api.the-odds-api.com/v4/sports/basketball_nba/odds?apiKey=${apiKey}&regions=us&markets=spreads&dateFormat=unix&oddsFormat=american&eventIds=${req.params.id}&bookmakers=draftkings&commenceTimeFrom=${date}`;
   axios
@@ -52,7 +52,6 @@ app.get("/oddsbyid/:id", (req, res, next) => {
       let gameinit : gameObject = { id,home_team,away_team,home_points,away_points,commence_time }
       let json = stringify(response.data[0]["bookmakers"][0]["markets"][0]["outcomes"][0]["point"], null, "\t");
       console.log(`1:${home_team} \t 2: ${away_team}`)
-      console.log(gameinit)
       res.send(gameinit);
     })
     .catch((err) => next(err));

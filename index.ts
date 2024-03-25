@@ -68,4 +68,4 @@ function returnFormattedDate(){
 
 }
 
-module.exports = app;
+export default app

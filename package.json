@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start-server": "bun index.ts",
-    "vercel-build": "bun build ./index.ts --outfile=bundle.js"
+    "vercel-build": "bun build --entrypoints ./index.ts --outdir ./out"
   },
   "devDependencies": {
     "@types/bun": "latest",

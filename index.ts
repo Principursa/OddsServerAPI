@@ -19,7 +19,9 @@ interface gameObject {
   away_points: number;
   commence_time: string; //in unix so smart contract conversion is easier
 }
-
+app.get("/",(req,res) => {
+  res.send("Server for scry hackathon")
+})
 app.get("/list", (req, res, next) => {
   console.log("hello world");
   const link = `https://api.the-odds-api.com/v4/sports/basketball_nba/odds?regions=us&oddsFormat=american&apiKey=${apiKey}`;

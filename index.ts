@@ -81,14 +81,12 @@ app.get("/game-result/:id", async (req, res, next) => {
 
 app.get("/game-results/list", async(req, res, next) => {
   const scoresListLink = `http://api.the-odds-api.com/v4/sports/basketball_nba/scores/?apiKey=${apiKey}&daysFrom=3&dateFormat=unix`
-  console.log(scoresListLink)
-  try{
+   try{
     const response = await axios.get(scoresListLink)
-    const json = response.data[0]
-    res.send(response)
+    res.send("hello")
   }catch(err){
     console.log(err)
-  }
+  }  
 });
 
 app.get("/game/:id", async (req, res) => {

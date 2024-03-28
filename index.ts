@@ -50,7 +50,6 @@ app.get("/", async (req, res) => {
   res.send("Server for scry hackathon");
 });
 app.get("/game/list", async (req, res, next) => {
-  console.log("hello world");
   const date = returnFormattedDate();
   const link = `https://api.the-odds-api.com/v4/sports/basketball_nba/odds?apiKey=${apiKey}&regions=us&markets=spreads&dateFormat=unix&oddsFormat=american&bookmakers=draftkings&commenceTimeFrom=${date}`;
   console.log(link)
@@ -59,7 +58,6 @@ app.get("/game/list", async (req, res, next) => {
   try {
     const response = await axios.get(link);
     let json = response.data;
-    res.send(json)
     json.forEach((info) => {
       idArr.push(info["id"]);
     });

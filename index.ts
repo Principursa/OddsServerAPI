@@ -12,7 +12,7 @@ import { resolveSync } from "bun";
 //TODO: Three different Routes, one for getting list of all games, one for odds for spec game:
 //NOTE: for the contract it should only be necessary to get specific games, frontend can handle listing
 // all available  games
-
+import cors from "cors"
 
 dotenv.config();
 const apiKey = process.env.API_KEY;
@@ -46,6 +46,7 @@ interface gameResultSC {
   away_score: number;
   completed: boolean;
 }
+app.use(cors())
 app.get("/", async (req, res) => {
   res.send("Server for scry hackathon");
 });

@@ -66,21 +66,34 @@ app.get("/game/list", async (req, res, next) => {
       promiseArray.push(getGameDataFE(info));
     });
     var arr = await Promise.allSettled(promiseArray);
-    res.send(arr);
+    const newray = arr.map((item) => {
+      if (item["status"] == "fulfilled"){
+        console.log(item["value"])
+        return item["value"]
+      }
+
+    })
+    res.send(newray);
   } catch (err) {
     throw err;
   }
 });
 app.get("/game-result/:id", async (req, res, next) => {
-  const result = await getGameResult(req.params.id, 3);
-  res.send(result);
+  const scoreLink = `https://api.the-odds-api.com/v4/sports/basketball_nba/scores?apiKey=${apiKey}&daysFrom=3&dateFormat=unix&eventIds=${req.params.id}`;
+  try {
+    const response = await axios.get(scoreLink)
+    var gmInfo = await getGameResult(response.data[0])
+    res.send(gmInfo)
+  } catch (error) {
+    throw(error)
+  }
 });
 
 app.get("/game-results/list", async (req, res, next) => {
   const scoresListLink = `http://api.the-odds-api.com/v4/sports/basketball_nba/scores/?apiKey=${apiKey}&daysFrom=3&dateFormat=unix`;
   try {
-    const response = await axios.get(scoresListLink);
-    res.send("hello");
+    var response = await axios.get(scoresListLink);
+    res.send(response);
   } catch (err) {
     console.log(err);
   }
@@ -161,11 +174,9 @@ async function getGameDataSC(id: string, date: string): Promise<gameObjectSC> {
     throw err;
   }
 }
-async function getGameResult(id: string, daysFrom: number) {
-  const scoreLink = `https://api.the-odds-api.com/v4/sports/basketball_nba/scores?apiKey=${apiKey}&daysFrom=${daysFrom}&dateFormat=unix&eventIds=${id}`;
+async function getGameResult(response: any) {
   try {
-    const response = await axios.get(scoreLink);
-    const json = response.data[0];
+    const json = response
     const id = json["id"];
     const home_team = json["home_team"];
     const away_team = json["away_team"];

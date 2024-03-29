@@ -19,6 +19,11 @@ const apiKey = process.env.API_KEY;
 const app = express();
 const port = 3000;
 
+const apiLog = (requestLog: string) => {
+  console.log(Date.now(),request)
+  console.log("called")
+
+}
 interface gameObjectFE {
   id: string;
   home_team: string;
@@ -53,23 +58,15 @@ app.get("/", async (req, res) => {
 app.get("/game/list", async (req, res, next) => {
   const date = returnFormattedDate();
   const link = `https://api.the-odds-api.com/v4/sports/basketball_nba/odds?apiKey=${apiKey}&regions=us&markets=spreads&dateFormat=unix&oddsFormat=american&bookmakers=draftkings&commenceTimeFrom=${date}`;
-  console.log(link);
-  var idArr: string[] = [];
-  var gameInfoArr: gameObjectFE[] = [];
   try {
     const response = await axios.get(link);
     let json = response.data;
+    var promiseArray: Promise<gameObjectFE>[] = [];
     json.forEach((info) => {
-      idArr.push(info["id"]);
+      promiseArray.push(getGameDataFE(info));
     });
-    console.log(idArr);
-    for (var id of idArr) {
-      var data = await getGameDataFE(id, date, response);
-      //function overload maybe?
-      gameInfoArr.push(data);
-    }
-    console.log(gameInfoArr);
-    res.send(gameInfoArr);
+    var arr = await Promise.allSettled(promiseArray);
+    res.send(arr);
   } catch (err) {
     throw err;
   }
@@ -93,21 +90,22 @@ app.get("/game/:id", async (req, res) => {
   const date = returnFormattedDate();
   const specOddsLink = `https://api.the-odds-api.com/v4/sports/basketball_nba/odds?apiKey=${apiKey}&regions=us&markets=spreads&dateFormat=unix&oddsFormat=american&eventIds=${req.params.id}&bookmakers=draftkings&commenceTimeFrom=${date}`;
   try {
-    const response = await axios.get(specOddsLink)
-    var gmInfo = await getGameDataFE(response)
+    const response = await axios.get(specOddsLink);
+    var gmInfo = await getGameDataFE(response.data[0]);
     res.send(gmInfo);
-
-  } catch (err){
-    throw(err)
+  } catch (err) {
+    throw err;
   }
 });
 
 app.get("/oracle/game/:id", async (req, res) => {
+  apiLog(req.params.id)
   const date = returnFormattedDate();
   var gmInfo = await getGameDataSC(req.params.id, date);
   res.send(gmInfo);
 });
 app.get("/oracle/game-result/:id", async (req, res) => {
+  apiLog(req.params.id)
   const result = await getGameResultSC(req.params.id, 3);
   res.send(result);
 });
@@ -118,7 +116,7 @@ app.listen(port, () => {
 
 async function getGameDataFE(response: any): Promise<gameObjectFE> {
   try {
-    const json = response.data[0];
+    const json = response;
     const id = json["id"];
     const commence_time = json["commence_time"];
     const home_team = json["home_team"];

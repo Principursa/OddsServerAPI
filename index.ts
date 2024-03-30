@@ -28,8 +28,8 @@ interface gameObjectFE {
   id: string;
   home_team: string;
   away_team: string;
-  home_points: number;
-  away_points: number;
+  home_points: number | string;
+  away_points: number | string;
   commence_time: number; //in unix so smart contract conversion is easier
 }
 interface gameObjectSC {
@@ -55,14 +55,20 @@ app.use(cors());
 app.get("/", async (req, res) => {
   res.send("Server for scry hackathon");
 });
+const instance = axios.create({
+  proxy: false  
+})
 app.get("/game/list", async (req, res, next) => {
   const date = returnFormattedDate();
-  const link = `https://api.the-odds-api.com/v4/sports/basketball_nba/odds?apiKey=${apiKey}&regions=us&markets=spreads&dateFormat=unix&oddsFormat=american&bookmakers=draftkings&commenceTimeFrom=${date}`;
+  const fowarddate = returnFormattedDatePlusTwo()//NOTE: might want to do some function overloading with this
+  const link = `https://api.the-odds-api.com/v4/sports/basketball_nba/odds?apiKey=${apiKey}&regions=us&markets=spreads&dateFormat=unix&oddsFormat=american&bookmakers=draftkings&commenceTimeFrom=${date}&commenceTimeTo=${fowarddate}`;
+  console.log(link)
   try {
     const response = await axios.get(link);
     let json = response.data;
     var promiseArray: Promise<gameObjectFE>[] = [];
     json.forEach((info) => {
+      console.log("info:",info)
       promiseArray.push(getGameDataFE(info));
     });
     var arr = await Promise.allSettled(promiseArray);
@@ -90,12 +96,24 @@ app.get("/game-result/:id", async (req, res, next) => {
 });
 
 app.get("/game-results/list", async (req, res, next) => {
-  const scoresListLink = `http://api.the-odds-api.com/v4/sports/basketball_nba/scores/?apiKey=${apiKey}&daysFrom=3&dateFormat=unix`;
+  const scoresListLink = `http://api.the-odds-api.com/v4/sports/basketball_nba/scores/?apiKey=${apiKey}&daysFrom=1&dateFormat=unix`;
   try {
-    var response = await axios.get(scoresListLink);
-    res.send(response);
+    var response = await instance.get(scoresListLink);
+    let json = response.data
+    var promiseArray: Promise<gameResult>[] = [];
+    json.forEach((info) => {
+      promiseArray.push(getGameResult(info))
+    })
+    var arr = await Promise.allSettled(promiseArray)
+    const newray = arr.map((item) => {
+      if (item["status"] == "fulfilled"){
+        console.log(item["value"])
+        return item["value"]
+      }
+    })
+    res.send(newray);
   } catch (err) {
-    console.log(err);
+    console.log(err)
   }
 });
 
@@ -134,11 +152,15 @@ async function getGameDataFE(response: any): Promise<gameObjectFE> {
     const commence_time = json["commence_time"];
     const home_team = json["home_team"];
     const away_team = json["away_team"];
-    const home_points =
-      json["bookmakers"][0]["markets"][0]["outcomes"][0]["point"];
-    const away_points =
-      json["bookmakers"][0]["markets"][0]["outcomes"][1]["point"];
 
+    var home_points: string | number = "TBA"
+    var away_points: string | number = "TBA"
+    if ( json["bookmakers"][0] !== undefined){
+     home_points =
+      json["bookmakers"][0]["markets"][0]["outcomes"][0]["point"];
+     away_points =
+      json["bookmakers"][0]["markets"][0]["outcomes"][1]["point"];
+    }
     const gameInfo = {
       id,
       home_team,
@@ -214,9 +236,21 @@ async function getGameResultSC(id: string, daysFrom: number) {
     throw err;
   }
 }
+function returnFormattedDatePlusTwo(){
+  var date = new Date()
+  var day = date.getDate()
+  day = day + 2
+  date.setDate(day)
+  var iso = date.toISOString()
+
+  var newdate = iso.slice(0, iso.length - 5) + "Z";
+  console.log("date", newdate);
+  return newdate;
+}
 
 function returnFormattedDate() {
   var date = new Date().toISOString();
+  //Get two days ahead 
   var newdate = date.slice(0, date.length - 5) + "Z";
   console.log("date", newdate);
   return newdate;

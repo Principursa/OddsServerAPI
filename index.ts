@@ -117,18 +117,23 @@ app.get('/game-result/:id', async (req, res, next) => {
 app.get('/game-results/list', async (req, res, next) => {
     const data = getFromCache(req.originalUrl);
     if (data) return res.send(data);
-    const scoresListLink = `https://api.the-odds-api.com/v4/sports/basketball_nba/scores/?apiKey=${apiKey}&daysFrom=1&dateFormat=unix`;
+    const scoresListLink = `https://api.the-odds-api.com/v4/sports/basketball_nba/scores/?apiKey=${apiKey}&daysFrom=3&dateFormat=unix`;
     try {
         let response = await instance.get(scoresListLink);
         const json = response.data;
         let promiseArray: Promise<gameResult>[] = [];
         json.forEach((info) => {
+          console.log('INFO: \t', info)
+          if (info["completed"] != false){
+
             promiseArray.push(getGameResult(info));
+
+          }
         });
         let arr = await Promise.allSettled(promiseArray);
         const newray = arr.map((item) => {
             if (item['status'] == 'fulfilled') {
-                console.log(item['value']);
+                //console.log(item['value']);
                 return item['value'];
             }
         });
@@ -139,7 +144,6 @@ app.get('/game-results/list', async (req, res, next) => {
     }
 });
 
-<<<<<<< HEAD
 app.get('/game/:id', async (req, res) => {
     const data = getFromCache(req.originalUrl);
     if (data) return res.send(data);

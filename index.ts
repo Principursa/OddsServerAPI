@@ -139,6 +139,7 @@ app.get('/game-results/list', async (req, res, next) => {
     }
 });
 
+<<<<<<< HEAD
 app.get('/game/:id', async (req, res) => {
     const data = getFromCache(req.originalUrl);
     if (data) return res.send(data);
@@ -161,6 +162,7 @@ app.get('/oracle/game/:id', async (req, res) => {
     const date = returnFormattedDate();
     let gmInfo = await getGameDataSC(req.params.id, date);
     writeToCache(req.originalUrl, gmInfo);
+
     res.send(gmInfo);
 });
 app.get('/oracle/game-result/:id', async (req, res) => {

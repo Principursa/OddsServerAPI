@@ -20,7 +20,7 @@ const app = express();
 const port = 3000;
 
 const apiLog = (requestLog: string) => {
-  console.log(Date.now(),request)
+  console.log(Date.now(),requestLog)
   console.log("called")
 
 }
